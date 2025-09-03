@@ -1,3 +1,5 @@
+const { Calendar, List, Upload, Copy, Instagram, Camera, Video, Clock, Edit2, Trash2, Plus } = lucideReact;
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, List, Upload, Copy, Instagram, Camera, Video, Clock, Edit2, Trash2, Plus } from 'lucide-react';
 
@@ -533,3 +535,7 @@ const InstagramContentPlanner = () => {
 };
 
 export default InstagramContentPlanner;
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(InstagramContentPlanner));
