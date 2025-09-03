@@ -2,37 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, List, Upload, Copy, Instagram, Camera, Video, Clock, Edit2, Trash2, Plus } from 'lucide-react';
 
 const InstagramContentPlanner = () => {
-  // DEBUG: Log component mount
-  useEffect(() => {
-    console.log('🚀 Component mounted');
-    console.log('📅 Initial date:', new Date().toISOString().split('T')[0]);
-  }, []);
-
   const [posts, setPosts] = useState([]);
   const [view, setView] = useState('calendar');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [editingPost, setEditingPost] = useState(null);
-  
-  // FIX: Add missing drag-and-drop state
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPost, setDraggedPost] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   
   const fileInputRef = useRef(null);
-  
-  // FIX: Define today variable
-  const today = new Date().toISOString().split('T')[0];
-  
-  // DEBUG: Log state changes
-  useEffect(() => {
-    console.log('📊 Posts updated:', posts.length, 'posts');
-    console.log('Posts data:', posts);
-  }, [posts]);
+  const today = new Date().toISOString().split('T')[0]);
 
   // Generate calendar days for current month
   const generateCalendarDays = () => {
-    console.log('📅 Generating calendar days...');
-    
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
@@ -42,31 +24,24 @@ const InstagramContentPlanner = () => {
     const startingDayOfWeek = firstDay.getDay();
     const days = [];
     
-    console.log(`📅 Calendar info: Year ${year}, Month ${month}, Days: ${daysInMonth}, Starting day: ${startingDayOfWeek}`);
-    
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
     
-    // Add days of the month - FIX: Template literal syntax
+    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       days.push(dateStr);
     }
     
-    console.log(`📅 Generated ${days.length} calendar cells`);
     return days;
   };
 
   const handleFileUpload = (event) => {
-    console.log('📁 File upload triggered');
     const files = Array.from(event.target.files);
-    console.log(`📁 Processing ${files.length} files`);
     
     files.forEach(file => {
-      console.log(`📁 Processing file: ${file.name}, Type: ${file.type}`);
-      
       const reader = new FileReader();
       reader.onload = (e) => {
         const newPost = {
@@ -76,32 +51,26 @@ const InstagramContentPlanner = () => {
           mediaType: file.type.startsWith('video/') ? 'video' : 'image',
           caption: '',
           scheduledDate: selectedDate,
-          postType: 'feed', // 'feed' or 'story'
+          postType: 'feed',
           createdAt: new Date().toISOString()
         };
-        
-        console.log('✅ Created new post:', newPost);
         setPosts(prev => [...prev, newPost]);
       };
       reader.readAsDataURL(file);
     });
   };
 
-  // FIX: Add missing drag handlers
   const handleDragStart = (post) => {
-    console.log('🎯 Drag started for post:', post.id);
     setIsDragging(true);
     setDraggedPost(post);
   };
   
   const handleDragEnd = () => {
-    console.log('🎯 Drag ended');
     setIsDragging(false);
     setDraggedPost(null);
   };
   
   const handleDrop = (targetDate) => {
-    console.log('🎯 Drop on date:', targetDate);
     if (draggedPost && targetDate) {
       updatePost(draggedPost.id, { scheduledDate: targetDate });
       handleDragEnd();
@@ -109,13 +78,10 @@ const InstagramContentPlanner = () => {
   };
 
   const copyCaption = (caption) => {
-    console.log('📋 Copying caption:', caption);
     navigator.clipboard.writeText(caption);
   };
 
   const openInInstagram = (post) => {
-    console.log('📱 Opening Instagram for post:', post.id, 'Type:', post.postType);
-    
     const message = post.postType === 'story' 
       ? 'Opening Instagram Stories...' 
       : 'Opening Instagram Feed composer...';
@@ -126,23 +92,18 @@ const InstagramContentPlanner = () => {
   };
 
   const deletePost = (postId) => {
-    console.log('🗑️ Deleting post:', postId);
     setPosts(prev => prev.filter(p => p.id !== postId));
   };
 
   const updatePost = (postId, updates) => {
-    console.log('✏️ Updating post:', postId, 'Updates:', updates);
     setPosts(prev => prev.map(p => p.id === postId ? { ...p, ...updates } : p));
     setEditingPost(null);
   };
 
   const getPostsForDate = (date) => {
-    const filteredPosts = posts.filter(post => post.scheduledDate === date);
-    console.log(`📅 Posts for ${date}:`, filteredPosts.length);
-    return filteredPosts;
+    return posts.filter(post => post.scheduledDate === date);
   };
 
-  // FIX: Add PostThumbnail component
   const PostThumbnail = ({ post, inCalendar, onDragStart }) => {
     return (
       <div 
@@ -244,8 +205,6 @@ const InstagramContentPlanner = () => {
     const [postType, setPostType] = useState(post.postType);
     const [scheduledDate, setScheduledDate] = useState(post.scheduledDate);
 
-    console.log('🔧 Edit modal opened for post:', post.id);
-
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl p-6 w-full max-w-md">
@@ -308,10 +267,7 @@ const InstagramContentPlanner = () => {
               Cancel
             </button>
             <button
-              onClick={() => {
-                console.log('💾 Saving changes:', { caption, postType, scheduledDate });
-                onSave({ caption, postType, scheduledDate });
-              }}
+              onClick={() => onSave({ caption, postType, scheduledDate })}
               className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Save Changes
@@ -367,10 +323,7 @@ const InstagramContentPlanner = () => {
                 className="hidden"
               />
               <button
-                onClick={() => {
-                  console.log('📤 Upload button clicked');
-                  fileInputRef.current?.click();
-                }}
+                onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Upload className="w-4 h-4" />
@@ -385,10 +338,7 @@ const InstagramContentPlanner = () => {
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex gap-2">
           <button
-            onClick={() => {
-              console.log('📅 Switching to calendar view');
-              setView('calendar');
-            }}
+            onClick={() => setView('calendar')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               view === 'calendar' 
                 ? 'bg-blue-100 text-blue-700 font-medium' 
@@ -399,10 +349,7 @@ const InstagramContentPlanner = () => {
             Calendar View
           </button>
           <button
-            onClick={() => {
-              console.log('📋 Switching to list view');
-              setView('list');
-            }}
+            onClick={() => setView('list')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               view === 'list' 
                 ? 'bg-blue-100 text-blue-700 font-medium' 
@@ -441,12 +388,7 @@ const InstagramContentPlanner = () => {
                 return (
                   <div
                     key={index}
-                    onClick={() => {
-                      if (date) {
-                        console.log('📅 Selected date:', date);
-                        setSelectedDate(date);
-                      }
-                    }}
+                    onClick={() => date && setSelectedDate(date)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={() => handleDrop(date)}
                     className={`min-h-[100px] p-2 border rounded-lg cursor-pointer transition-all ${
